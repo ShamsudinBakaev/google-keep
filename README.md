@@ -34,8 +34,4 @@ The original of this site is my daily tool and it feels good to create something
 
 ## Screenshots
 
-<div style="display: flex; flex-direction: column; max-width: 666px; margin: auto;">
-  <img src="./public/screenshots/screen-1.png" alt="screenshot" style="width: 100%; margin-bottom: 25px;" />
-  <img src="./public/screenshots/screen-2.png" alt="screenshot" style="width: 100%; margin-bottom: 25px" />
-  <img src="./public/screenshots/screen-3.png" alt="screenshot" style="width: 100%; margin-bottom: 25px" />
-</div>
+![Screenshot](./public/screenshots/screen-1.png)
