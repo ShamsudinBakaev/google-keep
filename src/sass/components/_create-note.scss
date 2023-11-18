@@ -1,0 +1,52 @@
+.component-create-note {
+  width: 500px;
+  box-shadow: 0 1px 8px -2px black;
+  border-radius: 10px;
+  padding: 16px 16px 10px;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .input {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .input-title,
+    .input-note {
+      resize: none;
+      border: none;
+      min-height: 20px;
+
+      &:focus {
+        outline: none;
+      }
+    }
+    .input-title {
+      font-weight: 500;
+    }
+  }
+
+  .bottom-control-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .block-right {
+      button {
+        border: none;
+        border-radius: 5px;
+        background-color: transparent;
+        cursor: pointer;
+        width: 125px;
+        height: 35px;
+
+        &:hover {
+          background-color: rgba(169, 169, 169, 0.2);
+        }
+      }
+    }
+  }
+}

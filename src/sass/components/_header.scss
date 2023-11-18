@@ -1,0 +1,52 @@
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0px 7px;
+  border-bottom: 1px solid rgba(169, 169, 169, 0.5);
+  color: rgb(50, 50, 50);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: white;
+  transition: box-shadow 0.1s;
+
+  .burger-logo {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+
+    .burger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+
+      img {
+        width: 20px;
+        height: auto;
+      }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      img {
+        width: 40px;
+        height: auto;
+      }
+      p {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+.with-shadow {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
+}

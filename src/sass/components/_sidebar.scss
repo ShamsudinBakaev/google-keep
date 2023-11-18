@@ -1,0 +1,46 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 95;
+  overflow-y: auto;
+  width: 65px;
+  transition: width 0.1s;
+  overflow: hidden;
+  background-color: white;
+
+  .section-elements {
+    padding: 75px 5px;
+
+    .element {
+      border-radius: 30px;
+      width: 100%;
+      height: 50px;
+      text-decoration: none;
+      color: black;
+
+      &:hover {
+        background-color: rgba(169, 169, 169, 0.2);
+      }
+
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      img {
+        margin: 0 25px 0 15px;
+        opacity: 80%;
+      }
+
+      p {
+        display: flex;
+      }
+    }
+  }
+}
+
+.open {
+  width: 250px;
+  box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.4);
+}
