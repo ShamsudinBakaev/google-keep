@@ -42,8 +42,6 @@ const CreateNote = () => {
               onChange={handleInputChange}
               maxLength={250}
               placeholder="Title"
-              //
-              id="title"
             />
             <TextareaAutosize
               className="input-note"
@@ -53,8 +51,6 @@ const CreateNote = () => {
               maxLength={5000}
               placeholder="Note"
               autoFocus
-              //
-              id="note"
             />
           </>
         ) : (
@@ -64,8 +60,6 @@ const CreateNote = () => {
               placeholder="Note..."
               value={''}
               onClick={handleExpandClick}
-              //
-              id="note-1"
             />
           </>
         )}
