@@ -15,11 +15,11 @@ const Header = () => {
     <div className={`header ${!top ? 'with-shadow' : ''}`}>
       <div className="burger-logo">
         <div className="burger">
-          <img src="public/hamburger-menu.svg" alt="" />
+          <img src="../../public/hamburger-menu.svg" alt="" />
         </div>
 
         <div className="logo">
-          <img src="public/keep.png" alt="" />
+          <img src="../../public/keep.png" alt="" />
           <p>Keep</p>
         </div>
       </div>

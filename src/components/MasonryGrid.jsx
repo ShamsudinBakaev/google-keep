@@ -73,41 +73,45 @@ const MasonryGrid = ({ notes }) => {
                   <div className="top">
                     <img
                       className="select-note"
-                      src="public/control-panel/select-note.svg"
+                      src="../../public/control-panel/select-note.svg"
                       alt=""
                     />
                   </div>
 
                   <div className="bottom">
                     <div className="block-left">
-                      <img className="fixation" src="./public/control-panel/fixation.svg" alt="" />
+                      <img
+                        className="fixation"
+                        src="../../public/control-panel/fixation.svg"
+                        alt=""
+                      />
                       <img
                         className="restore"
-                        src="public/control-panel/restore.svg"
+                        src="../../public/control-panel/restore.svg"
                         alt=""
                         onClick={() => handleRestore(elem.id)}
                       />
                       <img
                         className="delete-forever"
-                        src="public/control-panel/delete-forever.svg"
+                        src="../../public/control-panel/delete-forever.svg"
                         alt=""
                         onClick={() => handleDeleteForever(elem.id)}
                       />
                       <img
                         className="archive"
-                        src="public/control-panel/archive.svg"
+                        src="../../public/control-panel/archive.svg"
                         alt=""
                         onClick={() => handleArchive(elem.id)}
                       />
                       <img
                         className="unarchive"
-                        src="public/control-panel/unarchive.svg"
+                        src="../../public/control-panel/unarchive.svg"
                         alt=""
                         onClick={() => handleUnarchive(elem.id)}
                       />
                       <img
                         className="delete-note"
-                        src="public/control-panel/delete-note.svg"
+                        src="../../public/control-panel/delete-note.svg"
                         alt=""
                         onClick={() => handleDeleteNote(currentPage, elem.id)}
                       />
@@ -122,7 +126,7 @@ const MasonryGrid = ({ notes }) => {
         </ResponsiveMasonry>
       ) : (
         <div className="notes-empty-page">
-          <img src="public/sidebar/notes.svg" alt="" />
+          <img src="../../public/sidebar/notes.svg" alt="" />
           <p>Your notes will be here</p>
         </div>
       )}
