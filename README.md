@@ -1,6 +1,6 @@
 # Google Keep
 
-Hi! This project is a **_Keep_** clone inspired by my favorite **Google** app.
+Hi! This project is a **Keep** clone inspired by my favorite **Google** app.
 
 ## Description
 
