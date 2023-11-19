@@ -19,7 +19,7 @@ const Sidebar = () => {
           style={({ isActive }) => {
             return isActive ? { backgroundColor: '#feefc3' } : {};
           }}>
-          <img src="../../public/sidebar/notes.svg" alt="" />
+          <img src="/sidebar/notes.svg" alt="" />
           <p className="page-link" to="/home">
             Notes
           </p>
@@ -30,7 +30,7 @@ const Sidebar = () => {
           style={({ isActive }) => {
             return isActive ? { backgroundColor: '#feefc3' } : {};
           }}>
-          <img src="../../public/sidebar/archive.svg" alt="" />
+          <img src="/sidebar/archive.svg" alt="" />
           <p className="page-link" to="/archive">
             Archive
           </p>
@@ -41,7 +41,7 @@ const Sidebar = () => {
           style={({ isActive }) => {
             return isActive ? { backgroundColor: '#feefc3' } : {};
           }}>
-          <img src="../../public/sidebar/trash.svg" alt="" />
+          <img src="/sidebar/trash.svg" alt="" />
           <p className="page-link" to="/trash">
             Trash
           </p>
