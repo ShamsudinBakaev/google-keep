@@ -13,11 +13,24 @@ const notesSlice = createSlice({
     createNote(state, action) {
       const { title, note } = action.payload;
       const id = Date.now();
-      state.home.unshift({ id, title, note });
+      state.home.unshift({ id, title, note, pinned: false });
+    },
+    togglePin(state, action) {
+      const noteId = action.payload;
+      const noteToToggle = state.home.find((note) => note.id === noteId);
+
+      if (noteToToggle) {
+        noteToToggle.pinned = !noteToToggle.pinned;
+      }
     },
     deleteNoteHome(state, action) {
       const noteId = action.payload;
       const noteToDelete = state.home.find((note) => note.id === noteId);
+
+      if (noteToDelete && noteToDelete.pinned) {
+        noteToDelete.pinned = false;
+      }
+
       state.home = state.home.filter((note) => note.id !== noteId);
       state.trash.unshift(noteToDelete);
     },
@@ -34,6 +47,11 @@ const notesSlice = createSlice({
     archive(state, action) {
       const noteId = action.payload;
       const noteToArchive = state.home.find((note) => note.id === noteId);
+
+      if (noteToArchive && noteToArchive.pinned) {
+        noteToArchive.pinned = false;
+      }
+
       state.home = state.home.filter((note) => note.id !== noteId);
       state.archive.unshift(noteToArchive);
     },
@@ -54,6 +72,7 @@ const notesSlice = createSlice({
 
 export const {
   createNote,
+  togglePin,
   deleteNoteHome,
   deleteNoteArchive,
   deleteForever,
