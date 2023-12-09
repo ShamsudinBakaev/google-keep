@@ -15,6 +15,7 @@ const notesSlice = createSlice({
       const id = Date.now();
       state.home.unshift({ id, title, note, pinned: false });
     },
+    // Можно сделать возможным функционал закрепления заметки и для страницы Archive. Если заметку, находящуюся в архиве, закрепить, то она переместится в home и закрепится вверху страницы.
     togglePin(state, action) {
       const noteId = action.payload;
       const noteToToggle = state.home.find((note) => note.id === noteId);
