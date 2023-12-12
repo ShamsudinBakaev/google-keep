@@ -8,15 +8,18 @@ import Home from './pages/Home';
 import Archive from './pages/Archive';
 import Trash from './pages/Trash';
 import ErrorPage from './pages/ErrorPage';
+import Search from './pages/Search';
+
 import ScrollToTop from './components/ScrollToTop';
+import { SearchContextProvider } from './contexts/SearchContextProvider';
 
 const AppLayout = () => (
-  <>
+  <SearchContextProvider>
     <Header />
     <Sidebar />
     <ScrollToTop />
     <Outlet />
-  </>
+  </SearchContextProvider>
 );
 
 const router = createBrowserRouter([
@@ -24,6 +27,10 @@ const router = createBrowserRouter([
     element: <AppLayout />,
     errorElement: <ErrorPage />,
     children: [
+      {
+        path: 'search',
+        element: <Search />,
+      },
       {
         path: '/',
         element: <Home />,

@@ -10,7 +10,7 @@
     .card {
       width: 218px;
       border: 1px solid rgba(0, 0, 0, 0.2);
-      padding: 15px 15px 5px;
+      padding: 15px 15px 10px;
       margin-bottom: 15px;
       border-radius: 8px;
       position: relative;
@@ -33,7 +33,7 @@
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
-          margin-bottom: 5px;
+          margin-bottom: 15px;
           font-size: 16px;
         }
         .note {
@@ -64,8 +64,8 @@
         .top {
           .select-note {
             position: absolute;
-            top: -8px;
-            left: -8px;
+            top: -10px;
+            left: -10px;
             z-index: 90;
             opacity: 0.3;
           }
@@ -115,7 +115,7 @@
     }
   }
 
-  .notes-empty-page {
+  .special-element {
     text-align: center;
     padding-top: 150px;
     margin: auto;

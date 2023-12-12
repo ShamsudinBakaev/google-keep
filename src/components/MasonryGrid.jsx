@@ -66,14 +66,13 @@ const MasonryGrid = ({ notes }) => {
             {pinnedNotes.map((elem) => (
               <div className="card" key={elem.id}>
                 <div className="content">
-                  {elem.title || elem.note ? (
+                  {elem.title.length > 1 || elem.note.length > 1 ? (
                     <>
-                      <div className="title">{elem.title}</div>
-                      <div className="note">{elem.note}</div>
+                      {elem.title.length > 1 && <div className="title">{elem.title}</div>}
+                      {elem.note.length > 1 && <div className="note">{elem.note}</div>}
                     </>
                   ) : (
-                    // <div className="empty-note">Empty note</div>
-                    <div className="note">{elem.note || 'Empty note'}</div>
+                    <div className="note">Empty note</div>
                   )}
                 </div>
 
@@ -150,14 +149,13 @@ const MasonryGrid = ({ notes }) => {
             {unpinnedNotes.map((elem) => (
               <div className="card" key={elem.id}>
                 <div className="content">
-                  {elem.title || elem.note ? (
+                  {elem.title.length > 1 || elem.note.length > 1 ? (
                     <>
-                      <div className="title">{elem.title}</div>
-                      <div className="note">{elem.note}</div>
+                      {elem.title.length > 1 && <div className="title">{elem.title}</div>}
+                      {elem.note.length > 1 && <div className="note">{elem.note}</div>}
                     </>
                   ) : (
-                    // <div className="empty-note">Empty note</div>
-                    <div className="note">{elem.note || 'Empty note'}</div>
+                    <div className="note">Empty note</div>
                   )}
                 </div>
 
@@ -229,7 +227,10 @@ const MasonryGrid = ({ notes }) => {
           </Masonry>
         </ResponsiveMasonry>
       ) : (
-        <div className="notes-empty-page">
+        //
+        // Можно для каждой страницы сделать специальную картинку с надписью
+        //
+        <div className="special-element first">
           <img src="/sidebar/notes.svg" alt="" />
           <p>Your notes will be here</p>
         </div>

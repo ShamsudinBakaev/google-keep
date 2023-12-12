@@ -58,7 +58,11 @@
 
     position: relative;
 
-    #search {
+    .search {
+      width: 100%;
+    }
+
+    input {
       width: 100%;
       padding: 0 55px;
       height: 48px;
@@ -67,7 +71,6 @@
       background-color: #f1f3f4;
       box-sizing: border-box;
       outline: none;
-      font-weight: 300;
 
       &:focus {
         box-shadow: 0 1px 5px -2px black;
@@ -80,13 +83,24 @@
       top: 50%;
       transform: translateY(-50%);
       opacity: 0.7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+
+      &:hover {
+        background-color: rgba(169, 169, 169, 0.3);
+      }
+
+      img {
+        padding: 7px;
+      }
     }
 
     .search-svg {
-      left: 15px;
+      left: 10px;
     }
     .x-svg {
-      right: 15px;
+      right: 10px;
 
       // visibility: hidden;
     }
