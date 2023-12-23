@@ -16,18 +16,18 @@ The original of this site is my daily tool and it feels good to create something
 
 ## Technologies Used
 
-- **HTML+CSS**: Basic markup and styling languages that form the foundation of the visual representation of the application.
+- **HTML+CSS** 
 
-- **JavaScript**: The primary programming language that adds interactivity and dynamism to the entire project.
+- **JavaScript** 
 
-- **ReactJS**: A JavaScript library used to build user interfaces. Its component-based approach allows efficient state management.
+- **ReactJS**
+  
+- **React Router Dom** 
 
-- **React Router Dom**: A library for navigation in React applications, providing convenient routing between pages.
+- **Redux(Redux Toolkit)**
+  
+- **SASS** 
 
-- **Redux**: A state management library useful for handling the state of large and complex applications.
+- **React-responsive-masonry**
 
-- **Redux Toolkit**: A simplified and optimized set of tools for working with Redux, making the development process more efficient.
-
-- **SASS**: A CSS preprocessor extension, providing additional capabilities such as variables and nested styles.
-
-- **React-responsive-masonry**: A library for creating responsive grids, ensuring a beautiful and modern design.
+- **Firebase**
