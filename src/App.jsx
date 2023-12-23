@@ -11,6 +11,7 @@ import ErrorPage from './pages/ErrorPage';
 import Search from './pages/Search';
 
 import ScrollToTop from './components/ScrollToTop';
+
 import { SearchContextProvider } from './contexts/SearchContextProvider';
 
 const AppLayout = () => (

@@ -1,9 +1,11 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useSearch } from '../contexts/SearchContextProvider';
 
 const Header = () => {
   const [top, setTop] = React.useState(true);
+  const location = useLocation();
+  const currentPage = location.pathname;
 
   const { inputValue, handleSearch } = useSearch();
 
@@ -35,7 +37,11 @@ const Header = () => {
         <NavLink to="/search" className="search">
           <input type="text" placeholder="Search" value={inputValue} onChange={handleSearch} />
         </NavLink>
-        <NavLink to="/" className="icon x-svg" title="Delete search query">
+        <NavLink
+          to="/"
+          style={{ visibility: currentPage === '/search' ? 'visible' : 'hidden' }}
+          className="icon x-svg"
+          title="Delete search query">
           <img src="/header/x.svg" alt="" />
         </NavLink>
       </div>

@@ -31,7 +31,3 @@ The original of this site is my daily tool and it feels good to create something
 - **SASS**: A CSS preprocessor extension, providing additional capabilities such as variables and nested styles.
 
 - **React-responsive-masonry**: A library for creating responsive grids, ensuring a beautiful and modern design.
-
-## Screenshots
-
-![Screenshot](./public/screenshots/screen-1.png)

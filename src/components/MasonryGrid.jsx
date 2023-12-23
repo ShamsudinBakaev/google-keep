@@ -1,46 +1,191 @@
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import {
-  archive,
-  deleteForever,
-  deleteNoteArchive,
-  deleteNoteHome,
-  restore,
-  togglePin,
-  unarchive,
-} from '../redux/notesSlice';
+
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 const MasonryGrid = ({ notes }) => {
-  const dispatch = useDispatch();
   const location = useLocation();
   const currentPage = location.pathname;
   const { elements } = notes;
   const pinnedNotes = elements.filter((elem) => elem.pinned);
   const unpinnedNotes = elements.filter((elem) => !elem.pinned);
 
-  const handlePinNote = (id) => {
-    dispatch(togglePin(id));
+  // переписываю функционал, интегрирую с firebase:
+  const handlePinNote = async (id) => {
+    try {
+      const noteRef = doc(db, currentPage === '/' ? 'home' : 'archive', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        const { title, note, pinned, timestamp } = noteDoc.data();
+        await updateDoc(noteRef, {
+          pinned: !pinned,
+        });
+
+        if (currentPage === '/archive') {
+          const homeNoteRef = doc(db, 'home', id);
+          await setDoc(homeNoteRef, {
+            title,
+            note,
+            pinned: !pinned,
+            timestamp,
+          });
+
+          await deleteDoc(noteRef);
+        }
+
+        console.log('Заметка успешно изменена.');
+      } else {
+        console.error('Заметка не найдена.');
+      }
+    } catch (e) {
+      console.error('Ошибка при изменении заметки: ', e);
+    }
   };
-  const handleArchive = (id) => {
-    dispatch(archive(id));
+  const handleArchive = async (id) => {
+    try {
+      const homeNoteRef = doc(db, 'home', id);
+      const homeNoteDoc = await getDoc(homeNoteRef);
+
+      if (homeNoteDoc.exists()) {
+        const { title, note, pinned, timestamp } = homeNoteDoc.data();
+        const archiveNoteRef = doc(db, 'archive', id);
+
+        await setDoc(archiveNoteRef, {
+          title,
+          note,
+          pinned: pinned ? false : pinned,
+          timestamp,
+        });
+
+        await deleteDoc(homeNoteRef);
+
+        console.log('Заметка успешно перемещена в архив');
+      } else {
+        console.error('Заметка не найдена в коллекции home');
+      }
+    } catch (e) {
+      console.error('Ошибка при архивации заметки: ', e);
+    }
   };
-  const handleUnarchive = (id) => {
-    dispatch(unarchive(id));
+  const handleUnarchive = async (id) => {
+    try {
+      const archiveNoteRef = doc(db, 'archive', id);
+      const archiveNoteDoc = await getDoc(archiveNoteRef);
+
+      if (archiveNoteDoc.exists()) {
+        const { title, note, pinned, timestamp } = archiveNoteDoc.data();
+        const homeNoteRef = doc(db, 'home', id);
+
+        await setDoc(homeNoteRef, {
+          title,
+          note,
+          pinned,
+          timestamp,
+        });
+
+        await deleteDoc(archiveNoteRef);
+
+        console.log('Заметка успешно перемещена в архив');
+      } else {
+        console.error('Заметка не найдена в коллекции archive');
+      }
+    } catch (e) {
+      console.error('Ошибка при разархивации заметки: ', e);
+    }
   };
-  const handleDeleteNote = (currentPage, id) => {
+  // далее идут 2 функции: 1)удаляет заметку из home; 2)удаляет заметку из archive
+  // в зависимости от текущей страницы? handleDeleteNote будет запускать соответствующую функцию
+  const deleteNoteHome = async (id) => {
+    try {
+      const noteRef = doc(db, 'home', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        const trashNoteRef = doc(db, 'trash', id);
+        const { title, note, pinned, timestamp } = noteDoc.data();
+
+        await setDoc(trashNoteRef, {
+          title,
+          note,
+          pinned: pinned ? false : pinned,
+          timestamp,
+        });
+
+        await deleteDoc(noteRef);
+
+        console.log('Заметка успешно перемещена в корзину');
+      } else {
+        console.error('Заметка не найдена в коллекции home');
+      }
+    } catch (e) {
+      console.error('Ошибка при удалении заметки из коллекции home: ', e);
+    }
+  };
+  const deleteNoteArchive = async (id) => {
+    try {
+      const noteRef = doc(db, 'archive', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        const trashNoteRef = doc(db, 'trash', id);
+        const { title, note, pinned, timestamp } = noteDoc.data();
+
+        await setDoc(trashNoteRef, {
+          title,
+          note,
+          pinned: pinned ? fasle : pinned,
+          timestamp,
+        });
+
+        await deleteDoc(noteRef);
+
+        console.log('Заметка успешно перемещена в корзину');
+      } else {
+        console.error('Заметка не найдена в коллекции archive');
+      }
+    } catch (e) {
+      console.error('Ошибка при удалении заметки из коллекции archive: ', e);
+    }
+  };
+  const handleDeleteNote = async (currentPage, id) => {
     if (currentPage === '/') {
-      dispatch(deleteNoteHome(id));
+      deleteNoteHome(id);
     } else if (currentPage === '/archive') {
-      dispatch(deleteNoteArchive(id));
+      deleteNoteArchive(id);
     }
   };
   const handleDeleteForever = (id) => {
-    dispatch(deleteForever(id));
+    // Функцию предстоит написать, пока-что это просто заглушка
+    console.log(id);
   };
-  const handleRestore = (id) => {
-    dispatch(restore(id));
+  const handleRestore = async (id) => {
+    try {
+      const trashNoteRef = doc(db, 'trash', id);
+      const trashNoteDoc = await getDoc(trashNoteRef);
+
+      if (trashNoteDoc.exists()) {
+        const { title, note, pinned, timestamp } = trashNoteDoc.data();
+        const homeNoteRef = doc(db, 'home', id);
+
+        await setDoc(homeNoteRef, {
+          title,
+          note,
+          pinned,
+          timestamp,
+        });
+
+        await deleteDoc(trashNoteRef);
+
+        console.log('Заметка успешно восстановлена');
+      } else {
+        console.error('Заметка не найдена в коллекции trash');
+      }
+    } catch (e) {
+      console.error('Ошибка при восстановлении заметки: ', e);
+    }
   };
 
   return (
@@ -131,7 +276,7 @@ const MasonryGrid = ({ notes }) => {
                         className="delete-note"
                         src="/control-panel/delete-note.svg"
                         alt=""
-                        onClick={() => handleDeleteNote(currentPage, elem.id)}
+                        onClick={() => handleDeleteNote(elem.id)}
                         title="Delete"
                       />
                     </div>
@@ -227,9 +372,7 @@ const MasonryGrid = ({ notes }) => {
           </Masonry>
         </ResponsiveMasonry>
       ) : (
-        //
         // Можно для каждой страницы сделать специальную картинку с надписью
-        //
         <div className="special-element first">
           <img src="/sidebar/notes.svg" alt="" />
           <p>Your notes will be here</p>
