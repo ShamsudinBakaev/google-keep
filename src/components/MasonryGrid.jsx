@@ -12,7 +12,6 @@ const MasonryGrid = ({ notes }) => {
   const pinnedNotes = elements.filter((elem) => elem.pinned);
   const unpinnedNotes = elements.filter((elem) => !elem.pinned);
 
-  // переписываю функционал, интегрирую с firebase:
   const handlePinNote = async (id) => {
     try {
       const noteRef = doc(db, currentPage === '/' ? 'home' : 'archive', id);
@@ -96,8 +95,6 @@ const MasonryGrid = ({ notes }) => {
       console.error('Ошибка при разархивации заметки: ', e);
     }
   };
-  // далее идут 2 функции: 1)удаляет заметку из home; 2)удаляет заметку из archive
-  // в зависимости от текущей страницы? handleDeleteNote будет запускать соответствующую функцию
   const deleteNoteHome = async (id) => {
     try {
       const noteRef = doc(db, 'home', id);
@@ -136,7 +133,7 @@ const MasonryGrid = ({ notes }) => {
         await setDoc(trashNoteRef, {
           title,
           note,
-          pinned: pinned ? fasle : pinned,
+          pinned: pinned ? false : pinned,
           timestamp,
         });
 
@@ -157,9 +154,16 @@ const MasonryGrid = ({ notes }) => {
       deleteNoteArchive(id);
     }
   };
-  const handleDeleteForever = (id) => {
-    // Функцию предстоит написать, пока-что это просто заглушка
-    console.log(id);
+  const handleDeleteForever = async (id) => {
+    try {
+      const trashNoteRef = doc(db, 'trash', id);
+
+      await deleteDoc(trashNoteRef);
+
+      console.log('Заметка успешно удалена навсегда');
+    } catch (e) {
+      console.error('Ошибка при окончательном удалении заметки: ', e);
+    }
   };
   const handleRestore = async (id) => {
     try {

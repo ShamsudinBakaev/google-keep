@@ -15,6 +15,8 @@ const Archive = () => {
 
         const data = snapShot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setElements(data);
+
+        console.log('Перезагрузилась страница ARCHIVE');
       } catch (error) {
         console.error('Ошибка получения документа: ', error);
       }
