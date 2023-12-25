@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
+
 import { useDispatch } from 'react-redux';
 import { setStatus } from '../redux/notesSlice';
 
@@ -13,13 +14,11 @@ const MasonryGrid = ({ notes }) => {
   const { elements } = notes;
   const pinnedNotes = elements.filter((elem) => elem.pinned);
   const unpinnedNotes = elements.filter((elem) => !elem.pinned);
-
   const dispatch = useDispatch();
 
   const handlePinNote = async (id) => {
     try {
-      // dispatch(setStatus('loading'));
-
+      dispatch(setStatus('loading'));
       const noteRef = doc(db, currentPage === '/' ? 'home' : 'archive', id);
       const noteDoc = await getDoc(noteRef);
 
@@ -41,22 +40,19 @@ const MasonryGrid = ({ notes }) => {
           await deleteDoc(noteRef);
         }
 
-        console.log('Заметка успешно изменена.');
-
         dispatch(setStatus('succeeded'));
+        console.log('Заметка успешно изменена.');
       } else {
         console.error('Заметка не найдена.');
       }
     } catch (e) {
-      console.error('Ошибка при изменении заметки: ', e);
-
       dispatch(setStatus('failed'));
+      console.error('Ошибка при изменении заметки: ', e);
     }
   };
   const handleArchive = async (id) => {
     try {
-      // dispatch(setStatus('loading'));
-
+      dispatch(setStatus('loading'));
       const homeNoteRef = doc(db, 'home', id);
       const homeNoteDoc = await getDoc(homeNoteRef);
 
@@ -72,25 +68,20 @@ const MasonryGrid = ({ notes }) => {
         });
 
         await deleteDoc(homeNoteRef);
-
-        console.log('Заметка успешно перемещена в архив');
-
         dispatch(setStatus('succeeded'));
+        console.log('Заметка успешно перемещена в архив');
       } else {
-        console.error('Заметка не найдена в коллекции home');
-
         dispatch(setStatus('failed'));
+        console.error('Заметка не найдена в коллекции home');
       }
     } catch (e) {
-      console.error('Ошибка при архивации заметки: ', e);
-
       dispatch(setStatus('failed'));
+      console.error('Ошибка при архивации заметки: ', e);
     }
   };
   const handleUnarchive = async (id) => {
     try {
-      // dispatch(setStatus('loading'));
-
+      dispatch(setStatus('loading'));
       const archiveNoteRef = doc(db, 'archive', id);
       const archiveNoteDoc = await getDoc(archiveNoteRef);
 
@@ -106,80 +97,70 @@ const MasonryGrid = ({ notes }) => {
         });
 
         await deleteDoc(archiveNoteRef);
-
-        console.log('Заметка успешно разархивирована');
-
         dispatch(setStatus('succeeded'));
+        console.log('Заметка успешно разархивирована');
       } else {
-        console.error('Заметка не найдена в коллекции archive');
-
         dispatch(setStatus('failed'));
+        console.error('Заметка не найдена в коллекции archive');
       }
     } catch (e) {
-      console.error('Ошибка при разархивации заметки: ', e);
-
       dispatch(setStatus('failed'));
+      console.error('Ошибка при разархивации заметки: ', e);
     }
   };
-  // это предыдущие версии фукнций deleteNoteHome и deleteNoteArchive
-  // const deleteNoteHome = async (id) => {
-  //   try {
-  //     const noteRef = doc(db, 'home', id);
-  //     const noteDoc = await getDoc(noteRef);
+  const handleDeleteForever = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      const trashNoteRef = doc(db, 'trash', id);
 
-  //     if (noteDoc.exists()) {
-  //       const trashNoteRef = doc(db, 'trash', id);
-  //       const { title, note, pinned, timestamp } = noteDoc.data();
+      await deleteDoc(trashNoteRef);
+      dispatch(setStatus('succeeded'));
+      console.log('Заметка безвозвратно удалена');
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      console.error('Ошибка при окончательном удалении заметки: ', e);
+    }
+  };
+  const handleRestore = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      const trashNoteRef = doc(db, 'trash', id);
+      const trashNoteDoc = await getDoc(trashNoteRef);
 
-  //       await setDoc(trashNoteRef, {
-  //         title,
-  //         note,
-  //         pinned: pinned ? false : pinned,
-  //         timestamp,
-  //       });
+      if (trashNoteDoc.exists()) {
+        const { title, note, pinned, timestamp } = trashNoteDoc.data();
+        const homeNoteRef = doc(db, 'home', id);
 
-  //       await deleteDoc(noteRef);
+        await setDoc(homeNoteRef, {
+          title,
+          note,
+          pinned,
+          timestamp,
+        });
 
-  //       console.log('Заметка успешно перемещена в корзину');
-  //     } else {
-  //       console.error('Заметка не найдена в коллекции home');
-  //     }
-  //   } catch (e) {
-  //     console.error('Ошибка при удалении заметки из коллекции home: ', e);
-  //   }
-  // };
-  // const deleteNoteArchive = async (id) => {
-  //   try {
-  //     const noteRef = doc(db, 'archive', id);
-  //     const noteDoc = await getDoc(noteRef);
+        await deleteDoc(trashNoteRef);
+        dispatch(setStatus('succeeded'));
+        console.log('Заметка успешно восстановлена');
+      } else {
+        dispatch(setStatus('failed'));
+        console.error('Заметка не найдена в коллекции trash');
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      console.error('Ошибка при восстановлении заметки: ', e);
+    }
+  };
+  const handleDeleteNote = async (id) => {
+    if (currentPage === '/') {
+      deleteNoteHome(id);
+    } else if (currentPage === '/archive') {
+      deleteNoteArchive(id);
+    }
+  };
 
-  //     if (noteDoc.exists()) {
-  //       const trashNoteRef = doc(db, 'trash', id);
-  //       const { title, note, pinned, timestamp } = noteDoc.data();
-
-  //       await setDoc(trashNoteRef, {
-  //         title,
-  //         note,
-  //         pinned: pinned ? false : pinned,
-  //         timestamp,
-  //       });
-
-  //       await deleteDoc(noteRef);
-
-  //       console.log('Заметка успешно перемещена в корзину');
-  //     } else {
-  //       console.error('Заметка не найдена в коллекции archive');
-  //     }
-  //   } catch (e) {
-  //     console.error('Ошибка при удалении заметки из коллекции archive: ', e);
-  //   }
-  // };
-
-  // это обновленные версии функций deleteNoteHome и deleteNoteArchive
   const deleteNoteHome = async (id) => {
     try {
-      // dispatch(setStatus('loading'));
-
+      dispatch(setStatus('loading'));
       const noteRef = doc(db, 'home', id);
       const noteDoc = await getDoc(noteRef);
 
@@ -198,7 +179,7 @@ const MasonryGrid = ({ notes }) => {
           });
 
           await deleteDoc(noteRef);
-
+          dispatch(setStatus('succeeded'));
           console.log('Заметка успешно перемещена в корзину');
         } else {
           console.log('Заметка уже находится в корзине');
@@ -207,13 +188,13 @@ const MasonryGrid = ({ notes }) => {
         console.error('Заметка не найдена в коллекции home');
       }
     } catch (e) {
+      dispatch(setStatus('failed'));
       console.error('Ошибка при удалении заметки из коллекции home: ', e);
     }
   };
   const deleteNoteArchive = async (id) => {
     try {
-      // dispatch(setStatus('loading'));
-
+      dispatch(setStatus('loading'));
       const noteRef = doc(db, 'archive', id);
       const noteDoc = await getDoc(noteRef);
 
@@ -227,12 +208,12 @@ const MasonryGrid = ({ notes }) => {
           await setDoc(trashNoteRef, {
             title,
             note,
-            pinned: pinned ? false : pinned,
+            pinned,
             timestamp,
           });
 
           await deleteDoc(noteRef);
-
+          dispatch(setStatus('succeeded'));
           console.log('Заметка успешно перемещена в корзину');
         } else {
           console.log('Заметка уже находится в корзине');
@@ -241,66 +222,8 @@ const MasonryGrid = ({ notes }) => {
         console.error('Заметка не найдена в коллекции archive');
       }
     } catch (e) {
+      dispatch(setStatus('failed'));
       console.error('Ошибка при удалении заметки из коллекции archive: ', e);
-    }
-  };
-
-  const handleDeleteNote = async (currentPage, id) => {
-    if (currentPage === '/') {
-      deleteNoteHome(id);
-    } else if (currentPage === '/archive') {
-      deleteNoteArchive(id);
-    }
-  };
-  const handleDeleteForever = async (id) => {
-    try {
-      // dispatch(setStatus('loading'));
-
-      const trashNoteRef = doc(db, 'trash', id);
-
-      await deleteDoc(trashNoteRef);
-
-      console.log('Заметка успешно удалена навсегда');
-
-      dispatch(setStatus('succeeded'));
-    } catch (e) {
-      console.error('Ошибка при окончательном удалении заметки: ', e);
-
-      dispatch(setStatus('failed'));
-    }
-  };
-  const handleRestore = async (id) => {
-    try {
-      // dispatch(setStatus('loading'));
-
-      const trashNoteRef = doc(db, 'trash', id);
-      const trashNoteDoc = await getDoc(trashNoteRef);
-
-      if (trashNoteDoc.exists()) {
-        const { title, note, pinned, timestamp } = trashNoteDoc.data();
-        const homeNoteRef = doc(db, 'home', id);
-
-        await setDoc(homeNoteRef, {
-          title,
-          note,
-          pinned,
-          timestamp,
-        });
-
-        await deleteDoc(trashNoteRef);
-
-        console.log('Заметка успешно восстановлена');
-
-        dispatch(setStatus('succeeded'));
-      } else {
-        console.error('Заметка не найдена в коллекции trash');
-
-        dispatch(setStatus('failed'));
-      }
-    } catch (e) {
-      console.error('Ошибка при восстановлении заметки: ', e);
-
-      dispatch(setStatus('failed'));
     }
   };
 
@@ -488,11 +411,26 @@ const MasonryGrid = ({ notes }) => {
           </Masonry>
         </ResponsiveMasonry>
       ) : (
-        // Можно для каждой страницы сделать специальную картинку с надписью
-        <div className="special-element first">
-          <img src="/sidebar/notes.svg" alt="" />
-          <p>Your notes will be here</p>
-        </div>
+        <>
+          {currentPage === '/' && (
+            <div className="special-element first">
+              <img src="/sidebar/notes.svg" alt="" />
+              <p>Your notes will be here</p>
+            </div>
+          )}
+          {currentPage === '/archive' && (
+            <div className="special-element first">
+              <img src="/sidebar/archive.svg" alt="" />
+              <p>Archived notes will be stored here</p>
+            </div>
+          )}
+          {currentPage === '/trash' && (
+            <div className="special-element first">
+              <img src="/sidebar/trash.svg" alt="" />
+              <p>There is nothing in the cart</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

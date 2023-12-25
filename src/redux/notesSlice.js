@@ -1,5 +1,3 @@
-// Redux временно отключен от проекта за ненадобностью, но в будущем планируется функционал, для работы которого пригодится Redux
-
 import { createSlice } from '@reduxjs/toolkit';
 
 const notesSlice = createSlice({
@@ -8,7 +6,7 @@ const notesSlice = createSlice({
     status: 'idle', // Возможные значения: 'idle', 'loading', 'succeeded', 'failed'
   },
   reducers: {
-    // Эта функция предназначается для редактирования конкретной заметки
+    // Функция для редактирования заметки. В будущем планирую добавить такой функционал
     editNote(state, action) {
       console.log(state, action);
     },

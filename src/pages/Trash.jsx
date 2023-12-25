@@ -4,38 +4,30 @@ import MasonryGrid from '../components/MasonryGrid';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { setStatus } from '../redux/notesSlice';
+import { useSelector } from 'react-redux';
 
 const Trash = () => {
   const [elements, setElements] = React.useState([]);
-
-  const dispatch = useDispatch();
   const status = useSelector((state) => state.notes.status);
 
   React.useEffect(() => {
     const fetchNotes = async () => {
       try {
-        dispatch(setStatus('loading'));
-
         const collectionRef = collection(db, 'trash');
         const snapShot = await getDocs(query(collectionRef, orderBy('timestamp', 'desc')));
 
         const data = snapShot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setElements(data);
 
-        dispatch(setStatus('succeeded'));
-
         console.log('Перезагрузилась страница TRASH');
+        console.log('Статус: ', status);
       } catch (error) {
-        dispatch(setStatus('failed'));
-
         console.error('Ошибка получения документа: ', error);
       }
     };
 
     fetchNotes();
-  }, [dispatch]);
+  }, [status]);
 
   return (
     <div className="main page-trash">

@@ -4,12 +4,17 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
+import { useDispatch } from 'react-redux';
+import { setStatus } from '../redux/notesSlice';
+
 const CreateNote = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [form, setForm] = React.useState({
     title: '',
     note: '',
   });
+
+  const dispatch = useDispatch();
 
   const handleExpandClick = () => {
     setIsExpanded(true);
@@ -24,6 +29,8 @@ const CreateNote = () => {
 
   const handleAddNote = async () => {
     try {
+      dispatch(setStatus('loading'));
+
       await addDoc(collection(db, 'home'), {
         title: form.title,
         note: form.note,
@@ -31,6 +38,7 @@ const CreateNote = () => {
         timestamp: serverTimestamp(),
       });
 
+      dispatch(setStatus('succeeded'));
       console.log('Документ успешно добавлен');
 
       setIsExpanded(false);
@@ -39,6 +47,7 @@ const CreateNote = () => {
         note: '',
       });
     } catch (e) {
+      dispatch(setStatus('failed'));
       console.error('Ошибка при добавлении документа: ', e);
     }
   };
