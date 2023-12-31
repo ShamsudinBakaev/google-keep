@@ -8,6 +8,9 @@ import { db } from '../services/firebase';
 import { useDispatch } from 'react-redux';
 import { setStatus } from '../redux/notesSlice';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const MasonryGrid = ({ notes }) => {
   const location = useLocation();
   const currentPage = location.pathname;
@@ -16,9 +19,18 @@ const MasonryGrid = ({ notes }) => {
   const unpinnedNotes = elements.filter((elem) => !elem.pinned);
   const dispatch = useDispatch();
 
+  const successToast = (message) => {
+    toast.success(message);
+  };
+  const errorToast = (message) => {
+    toast.error(message);
+  };
+
   const handlePinNote = async (id) => {
     try {
       dispatch(setStatus('loading'));
+      successToast('Success');
+
       const noteRef = doc(db, currentPage === '/' ? 'home' : 'archive', id);
       const noteDoc = await getDoc(noteRef);
 
@@ -41,18 +53,18 @@ const MasonryGrid = ({ notes }) => {
         }
 
         dispatch(setStatus('succeeded'));
-        console.log('Заметка успешно изменена.');
-      } else {
-        console.error('Заметка не найдена.');
       }
     } catch (e) {
       dispatch(setStatus('failed'));
-      console.error('Ошибка при изменении заметки: ', e);
+      errorToast('Error');
+      console.error('Error: ', e);
     }
   };
   const handleArchive = async (id) => {
     try {
       dispatch(setStatus('loading'));
+      successToast('Note archived');
+
       const homeNoteRef = doc(db, 'home', id);
       const homeNoteDoc = await getDoc(homeNoteRef);
 
@@ -69,19 +81,18 @@ const MasonryGrid = ({ notes }) => {
 
         await deleteDoc(homeNoteRef);
         dispatch(setStatus('succeeded'));
-        console.log('Заметка успешно перемещена в архив');
-      } else {
-        dispatch(setStatus('failed'));
-        console.error('Заметка не найдена в коллекции home');
       }
     } catch (e) {
       dispatch(setStatus('failed'));
-      console.error('Ошибка при архивации заметки: ', e);
+      errorToast('Archiving error');
+      console.error('Archiving error: ', e);
     }
   };
   const handleUnarchive = async (id) => {
     try {
       dispatch(setStatus('loading'));
+      successToast('Note unarchived');
+
       const archiveNoteRef = doc(db, 'archive', id);
       const archiveNoteDoc = await getDoc(archiveNoteRef);
 
@@ -98,32 +109,33 @@ const MasonryGrid = ({ notes }) => {
 
         await deleteDoc(archiveNoteRef);
         dispatch(setStatus('succeeded'));
-        console.log('Заметка успешно разархивирована');
-      } else {
-        dispatch(setStatus('failed'));
-        console.error('Заметка не найдена в коллекции archive');
       }
     } catch (e) {
       dispatch(setStatus('failed'));
-      console.error('Ошибка при разархивации заметки: ', e);
+      errorToast('Unarchiving error');
+      console.error('Unarchiving error: ', e);
     }
   };
   const handleDeleteForever = async (id) => {
     try {
       dispatch(setStatus('loading'));
+      successToast('Note deleted forever');
+
       const trashNoteRef = doc(db, 'trash', id);
 
       await deleteDoc(trashNoteRef);
       dispatch(setStatus('succeeded'));
-      console.log('Заметка безвозвратно удалена');
     } catch (e) {
       dispatch(setStatus('failed'));
-      console.error('Ошибка при окончательном удалении заметки: ', e);
+      errorToast('Permanent deletion error');
+      console.error('Permanent deletion error: ', e);
     }
   };
   const handleRestore = async (id) => {
     try {
       dispatch(setStatus('loading'));
+      successToast('Note restored');
+
       const trashNoteRef = doc(db, 'trash', id);
       const trashNoteDoc = await getDoc(trashNoteRef);
 
@@ -140,16 +152,71 @@ const MasonryGrid = ({ notes }) => {
 
         await deleteDoc(trashNoteRef);
         dispatch(setStatus('succeeded'));
-        console.log('Заметка успешно восстановлена');
-      } else {
-        dispatch(setStatus('failed'));
-        console.error('Заметка не найдена в коллекции trash');
       }
     } catch (e) {
       dispatch(setStatus('failed'));
-      console.error('Ошибка при восстановлении заметки: ', e);
+      errorToast('Restore error');
+      console.error('Restore error: ', e);
     }
   };
+
+  const deleteNoteHome = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Note deleted');
+
+      const noteRef = doc(db, 'home', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        const { title, note, pinned, timestamp } = noteDoc.data();
+        const trashNoteRef = doc(db, 'trash', id);
+
+        await setDoc(trashNoteRef, {
+          title,
+          note,
+          pinned: pinned ? false : pinned,
+          timestamp,
+        });
+
+        await deleteDoc(noteRef);
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Delete error');
+      console.error('Delete error: ', e);
+    }
+  };
+  const deleteNoteArchive = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Note deleted');
+
+      const noteRef = doc(db, 'archive', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        const { title, note, pinned, timestamp } = noteDoc.data();
+        const trashNoteRef = doc(db, 'trash', id);
+
+        await setDoc(trashNoteRef, {
+          title,
+          note,
+          pinned,
+          timestamp,
+        });
+
+        await deleteDoc(noteRef);
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Delete error');
+      console.error('Delete error: ', e);
+    }
+  };
+
   const handleDeleteNote = async (id) => {
     if (currentPage === '/') {
       deleteNoteHome(id);
@@ -158,77 +225,23 @@ const MasonryGrid = ({ notes }) => {
     }
   };
 
-  const deleteNoteHome = async (id) => {
-    try {
-      dispatch(setStatus('loading'));
-      const noteRef = doc(db, 'home', id);
-      const noteDoc = await getDoc(noteRef);
-
-      if (noteDoc.exists()) {
-        const trashNoteRef = doc(db, 'trash', id);
-        const trashNoteDoc = await getDoc(trashNoteRef);
-
-        if (!trashNoteDoc.exists()) {
-          const { title, note, pinned, timestamp } = noteDoc.data();
-
-          await setDoc(trashNoteRef, {
-            title,
-            note,
-            pinned: pinned ? false : pinned,
-            timestamp,
-          });
-
-          await deleteDoc(noteRef);
-          dispatch(setStatus('succeeded'));
-          console.log('Заметка успешно перемещена в корзину');
-        } else {
-          console.log('Заметка уже находится в корзине');
-        }
-      } else {
-        console.error('Заметка не найдена в коллекции home');
-      }
-    } catch (e) {
-      dispatch(setStatus('failed'));
-      console.error('Ошибка при удалении заметки из коллекции home: ', e);
-    }
-  };
-  const deleteNoteArchive = async (id) => {
-    try {
-      dispatch(setStatus('loading'));
-      const noteRef = doc(db, 'archive', id);
-      const noteDoc = await getDoc(noteRef);
-
-      if (noteDoc.exists()) {
-        const trashNoteRef = doc(db, 'trash', id);
-        const trashNoteDoc = await getDoc(trashNoteRef);
-
-        if (!trashNoteDoc.exists()) {
-          const { title, note, pinned, timestamp } = noteDoc.data();
-
-          await setDoc(trashNoteRef, {
-            title,
-            note,
-            pinned,
-            timestamp,
-          });
-
-          await deleteDoc(noteRef);
-          dispatch(setStatus('succeeded'));
-          console.log('Заметка успешно перемещена в корзину');
-        } else {
-          console.log('Заметка уже находится в корзине');
-        }
-      } else {
-        console.error('Заметка не найдена в коллекции archive');
-      }
-    } catch (e) {
-      dispatch(setStatus('failed'));
-      console.error('Ошибка при удалении заметки из коллекции archive: ', e);
-    }
-  };
-
   return (
     <div className="component-masonry-grid">
+      {/* Function execution status message */}
+      <ToastContainer
+        position="bottom-left"
+        autoClose={3000}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+
+      {/* Masonry-grid */}
       {elements.length > 0 ? (
         <ResponsiveMasonry
           className="masonry-grid-item"
@@ -398,7 +411,7 @@ const MasonryGrid = ({ notes }) => {
                         className="delete-note"
                         src="/control-panel/delete-note.svg"
                         alt=""
-                        onClick={() => handleDeleteNote(currentPage, elem.id)}
+                        onClick={() => handleDeleteNote(elem.id)}
                         title="Delete"
                       />
                     </div>
