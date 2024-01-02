@@ -1,32 +1,211 @@
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { useSearch } from '../contexts/SearchContextProvider';
 
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
+
+import { useDispatch } from 'react-redux';
+import { setStatus } from '../redux/notesSlice';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Search = () => {
   const { searchResultsInHome, searchResultsInArchive, inputValue } = useSearch();
-  // const dispatch = useDispatch();
-  // const location = useLocation();
-  // const currentPage = location.pathname;
+  const dispatch = useDispatch();
 
-  // const handlePinNote = (id) => {
-  //   dispatch(togglePin(id));
-  // };
-  // const handleArchive = (id) => {
-  //   dispatch(archive(id));
-  // };
-  // const handleUnarchive = (id) => {
-  //   dispatch(unarchive(id));
-  // };
-  // const handleDeleteNote = (currentPage, id) => {
-  //   if (currentPage === '/') {
-  //     dispatch(deleteNoteHome(id));
-  //   } else if (currentPage === '/archive') {
-  //     dispatch(deleteNoteArchive(id));
-  //   }
-  // };
+  const successToast = (message) => {
+    toast.success(message);
+  };
+  const errorToast = (message) => {
+    toast.error(message);
+  };
+
+  const handlePinNoteInHome = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Success');
+
+      const noteRef = doc(db, 'home', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        await updateDoc(noteRef, {
+          pinned: !noteDoc.data().pinned,
+        });
+
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Error');
+      console.error('Error: ', e);
+    }
+  };
+  const handlePinNoteInArchive = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Success');
+
+      const archiveNoteRef = doc(db, 'archive', id);
+      const archiveNoteDoc = await getDoc(archiveNoteRef);
+
+      if (archiveNoteDoc.exists()) {
+        const { title, note, timestamp } = archiveNoteDoc.data();
+
+        const updatedData = {
+          title,
+          note,
+          pinned: true,
+          timestamp,
+        };
+
+        const homeNoteRef = doc(db, 'home', id);
+
+        await setDoc(homeNoteRef, updatedData);
+        await deleteDoc(archiveNoteRef);
+
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Error');
+      console.error('Error: ', e);
+    }
+  };
+
+  const handleArchive = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Note archived');
+
+      const homeNoteRef = doc(db, 'home', id);
+      const homeNoteDoc = await getDoc(homeNoteRef);
+
+      if (homeNoteDoc.exists()) {
+        const { title, note, pinned, timestamp } = homeNoteDoc.data();
+        const archiveNoteRef = doc(db, 'archive', id);
+
+        await setDoc(archiveNoteRef, {
+          title,
+          note,
+          pinned: pinned ? false : pinned,
+          timestamp,
+        });
+
+        await deleteDoc(homeNoteRef);
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Archiving error');
+      console.error('Archiving error: ', e);
+    }
+  };
+  const handleUnarchive = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Note unarchived');
+
+      const archiveNoteRef = doc(db, 'archive', id);
+      const archiveNoteDoc = await getDoc(archiveNoteRef);
+
+      if (archiveNoteDoc.exists()) {
+        const { title, note, pinned, timestamp } = archiveNoteDoc.data();
+        const homeNoteRef = doc(db, 'home', id);
+
+        await setDoc(homeNoteRef, {
+          title,
+          note,
+          pinned,
+          timestamp,
+        });
+
+        await deleteDoc(archiveNoteRef);
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Unarchiving error');
+      console.error('Unarchiving error: ', e);
+    }
+  };
+
+  const handleDeleteNoteFromHome = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Note deleted');
+
+      const noteRef = doc(db, 'home', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        const { title, note, pinned, timestamp } = noteDoc.data();
+        const trashNoteRef = doc(db, 'trash', id);
+
+        await setDoc(trashNoteRef, {
+          title,
+          note,
+          pinned: pinned ? false : pinned,
+          timestamp,
+        });
+
+        await deleteDoc(noteRef);
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Delete error');
+      console.error('Delete error: ', e);
+    }
+  };
+  const handleDeleteNoteFromArchive = async (id) => {
+    try {
+      dispatch(setStatus('loading'));
+      successToast('Note deleted');
+
+      const noteRef = doc(db, 'archive', id);
+      const noteDoc = await getDoc(noteRef);
+
+      if (noteDoc.exists()) {
+        const { title, note, pinned, timestamp } = noteDoc.data();
+        const trashNoteRef = doc(db, 'trash', id);
+
+        await setDoc(trashNoteRef, {
+          title,
+          note,
+          pinned,
+          timestamp,
+        });
+
+        await deleteDoc(noteRef);
+        dispatch(setStatus('succeeded'));
+      }
+    } catch (e) {
+      dispatch(setStatus('failed'));
+      errorToast('Delete error');
+      console.error('Delete error: ', e);
+    }
+  };
 
   return (
     <div className="main page-search">
       <div className="component-masonry-grid">
+        {/* Function execution status message */}
+        <ToastContainer
+          position="bottom-left"
+          autoClose={3000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
+
+        {/* Masonry-grid */}
         {searchResultsInHome.length > 0 || searchResultsInArchive.length > 0 ? (
           <ResponsiveMasonry
             className="masonry-grid-item"
@@ -69,7 +248,7 @@ const Search = () => {
 
                     <div className="bottom">
                       <div className="block-left">
-                        {/* <img
+                        <img
                           className="pin"
                           src={
                             elem.pinned
@@ -77,7 +256,7 @@ const Search = () => {
                               : '/control-panel/note-is-not-pinned.svg'
                           }
                           alt=""
-                          onClick={() => handlePinNote(elem.id)}
+                          onClick={() => handlePinNoteInHome(elem.id)}
                           title={elem.pinned ? 'Unpin a note' : 'Pin a note'}
                         />
                         <img
@@ -91,9 +270,9 @@ const Search = () => {
                           className="delete-note"
                           src="/control-panel/delete-note.svg"
                           alt=""
-                          onClick={() => handleDeleteNote(currentPage, elem.id)}
+                          onClick={() => handleDeleteNoteFromHome(elem.id)}
                           title="Delete"
-                        /> */}
+                        />
                       </div>
 
                       <div className="block-right">{/* <button>Close</button> */}</div>
@@ -131,7 +310,7 @@ const Search = () => {
 
                     <div className="bottom">
                       <div className="block-left">
-                        {/* <img
+                        <img
                           className="pin"
                           src={
                             elem.pinned
@@ -139,7 +318,7 @@ const Search = () => {
                               : '/control-panel/note-is-not-pinned.svg'
                           }
                           alt=""
-                          onClick={() => handlePinNote(elem.id)}
+                          onClick={() => handlePinNoteInArchive(elem.id)}
                           title={elem.pinned ? 'Unpin a note' : 'Pin a note'}
                         />
                         <img
@@ -153,9 +332,9 @@ const Search = () => {
                           className="delete-note"
                           src="/control-panel/delete-note.svg"
                           alt=""
-                          onClick={() => handleDeleteNote(currentPage, elem.id)}
+                          onClick={() => handleDeleteNoteFromArchive(elem.id)}
                           title="Delete"
-                        /> */}
+                        />
                       </div>
 
                       <div className="block-right">{/* <button>Close</button> */}</div>
@@ -167,7 +346,7 @@ const Search = () => {
           </ResponsiveMasonry>
         ) : inputValue.length >= 1 ? (
           <div className="special-element first">
-            <p>Ничего не найдено</p>
+            <p>Nothing found</p>
           </div>
         ) : (
           <div className="special-element first">

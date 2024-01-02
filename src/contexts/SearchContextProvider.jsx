@@ -1,7 +1,11 @@
 import React from 'react';
-import Fuse from 'fuse.js';
-import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
+import Fuse from 'fuse.js';
+
+import { db } from '../services/firebase';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 
 const SearchContext = React.createContext();
 
@@ -9,13 +13,40 @@ const SearchContext = React.createContext();
 
 // eslint-disable-next-line react/prop-types
 export const SearchContextProvider = ({ children }) => {
+  const [allHomeNotes, setAllHomeNotes] = React.useState([]);
+  const [allArchiveNotes, setAllArchiveNotes] = React.useState([]);
+
   const [searchResultsInHome, setSearchResultsInHome] = React.useState([]);
   const [searchResultsInArchive, setSearchResultsInArchive] = React.useState([]);
+
   const [inputValue, setInputValue] = React.useState('');
+
+  const status = useSelector((state) => state.notes.status);
+
   const location = useLocation();
 
-  const homeNotesArray = useSelector((state) => state.home);
-  const archiveNotesArray = useSelector((state) => state.archive);
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const homeCollectionRef = collection(db, 'home');
+        const homeSnapshot = await getDocs(query(homeCollectionRef, orderBy('timestamp', 'desc')));
+        const homeData = homeSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        const archiveCollectionRef = collection(db, 'archive');
+        const archiveSnapshot = await getDocs(
+          query(archiveCollectionRef, orderBy('timestamp', 'desc')),
+        );
+        const archiveData = archiveSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        setAllHomeNotes(homeData);
+        setAllArchiveNotes(archiveData);
+      } catch (error) {
+        console.error('Ошибка получения данных: ', error);
+      }
+    };
+
+    fetchData();
+  }, [status]);
 
   React.useEffect(() => {
     setInputValue('');
@@ -30,8 +61,8 @@ export const SearchContextProvider = ({ children }) => {
     keys: ['title', 'note'],
   };
 
-  const homeFuse = new Fuse(homeNotesArray, options);
-  const archiveFuse = new Fuse(archiveNotesArray, options);
+  const homeFuse = new Fuse(allHomeNotes, options);
+  const archiveFuse = new Fuse(allArchiveNotes, options);
 
   const handleSearch = (event) => {
     const { value } = event.target;
