@@ -18,9 +18,6 @@ const Trash = () => {
 
         const data = snapShot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setElements(data);
-
-        console.log('Перезагрузилась страница TRASH');
-        console.log('Статус: ', status);
       } catch (error) {
         console.error('Ошибка получения документа: ', error);
       }
